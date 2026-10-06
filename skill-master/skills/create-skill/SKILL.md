@@ -105,12 +105,18 @@ A skill's contents should match what its description says. Do not build skills t
 
 After the draft, write two or three test prompts that sound like something a real user would type, with concrete details: file names, a bit of backstory, casual phrasing. Show them to the user and ask if they look right or if they want to add one.
 
-Then run them:
+For a skill with checkable output, also write two to four assertions per prompt: concrete statements about the output that are true only when the skill did its job ("the CSV has a header row", "the summary names the root cause, not the symptom"). An assertion that a wrong output would also pass is worthless. Skip assertions for subjective skills.
 
-- With subagents available, spawn one fresh subagent per prompt, give it the skill path and the prompt, and ask it to save its outputs to a scratch directory. Fresh context matters, because you wrote the skill and would otherwise fill its gaps from memory.
-- Without subagents, read the `SKILL.md` and follow it yourself, one prompt at a time. Less rigorous, still useful.
+Then run each prompt twice, in the same turn:
 
-Present the outputs to the user in the conversation. For files they need to open, save them and give the path. Ask inline: "How does this look? What would you change?" Empty feedback means fine. Focus the next revision on the prompts where the user had specific complaints.
+- **With the skill.** A fresh subagent gets the skill path and the prompt, and saves its outputs to a scratch directory. Fresh context matters, because you wrote the skill and would otherwise fill its gaps from memory.
+- **Without the skill.** Another fresh subagent gets the same prompt and no skill path. When improving an existing skill, give it a snapshot of the old version instead. This is the baseline. Without it you cannot tell whether the skill adds anything or the model would have done the same on its own.
+
+Without subagents, read the `SKILL.md` and follow it yourself, one prompt at a time, and skip the baseline. Less rigorous, still useful.
+
+When the runs finish, grade them if there are assertions: a fresh subagent reads each run's outputs and transcript, marks every assertion pass or fail with the evidence it found, and flags assertions that passed too easily or outcomes nothing checked. Grade from the real output, never from the run's own summary.
+
+Present the outputs side by side in the conversation, with the grades when there are any. For files the user needs to open, save them and give the path. Ask inline: "How does this look? What would you change?" Empty feedback means fine. Focus the next revision on the prompts where the user had specific complaints, and on any assertion the skill run failed while the baseline passed.
 
 ## Improve the skill
 
@@ -125,7 +131,7 @@ Then rerun the test prompts and show the user again. Stop when the user is happy
 
 An agent sees only the name and description when deciding whether to consult a skill, and it consults skills mainly for tasks it cannot handle in one step. A simple "read this PDF" may never trigger a PDF skill no matter how good the description is.
 
-To sanity-check a description, write a handful of realistic queries: some that should trigger, some that should not. The valuable negatives are near-misses that share keywords but need something else. Read the description against each query and ask whether an agent seeing only that line would pick the skill. Adjust the description, not the body.
+Write six to ten realistic queries: half that should trigger, half that should not. The valuable negatives are near-misses that share keywords but need something else. Then test them instead of guessing: run each query in a fresh session that has the skill installed (`claude -p "<query>"` works in Claude Code) and check the transcript for whether the skill was read. Two or three runs per query, because triggering is not deterministic. Fix misses by changing the description, not the body, and rerun.
 
 ## Update an existing skill
 
@@ -138,3 +144,4 @@ Keep the original folder name and `name` field. Snapshot the current version bef
 - Everything is in English, with plain dashes.
 - `SKILL.md` is under about 500 lines.
 - The description says when to use the skill, and sounds a little pushy.
+- The test prompts ran with and without the skill, and the user saw both.
