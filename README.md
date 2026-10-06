@@ -1,10 +1,10 @@
 # skills
 
-Agent skills, grouped by discipline under `skills/`.
+Agent skills, grouped by discipline. Each group keeps its skills under `<group>/skills/<name>/SKILL.md`.
 
-- [skills/eng](./skills/eng/) - engineering workflows and principles
-- [skills/design](./skills/design/) - product and visual design
-- [skills/writing](./skills/writing/) - prose, docs, and communication
+- [eng](./eng/) - engineering workflows and principles
+- [design](./design/) - product and visual design
+- [writing](./writing/) - prose, docs, and communication
 
 ## Install
 
