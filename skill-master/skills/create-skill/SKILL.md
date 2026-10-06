@@ -19,7 +19,8 @@ Find out where the user is in this loop and jump in there. "I want a skill for X
 
 ## House rules
 
-- **Write every skill artifact in English.** The `SKILL.md`, its references, scripts, comments, and examples are all English, even when the conversation with the user is in another language. Skills get shared and installed by people who did not take part in the conversation, and one language keeps them readable for everyone.
+- **Write every skill artifact in English.** The `SKILL.md`, its references, scripts, comments, and examples are all English, even when the conversation with the user is in another language.
+- **Be concise and to the point.** Every sentence must change what the agent does. Cut the rest.
 - **Use a plain dash, never an em dash.** Write `-` where you would reach for `—`.
 - **Keep `SKILL.md` under about 500 lines.** When it grows past that, move detail into `references/` and point to it.
 - **Explain why, not just what.** A sentence that says why a step matters lets the agent handle cases the skill never anticipated. All-caps `ALWAYS` and `NEVER` are a yellow flag that the reasoning is missing.
