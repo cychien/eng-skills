@@ -5,6 +5,7 @@ Agent skills, grouped by discipline. Each group keeps its skills under `<group>/
 - [eng](./eng/) - engineering workflows and principles
 - [design](./design/) - product and visual design
 - [writing](./writing/) - prose, docs, and communication
+- [skill-creator](./skill-creator/) - authoring and evaluating skills
 
 ## Install
 
