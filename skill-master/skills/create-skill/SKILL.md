@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: Create a new skill or improve an existing one. Captures intent, drafts a SKILL.md with progressive disclosure, tries it on a few realistic prompts, and iterates on feedback. Every skill artifact is written in English. Use this whenever the user wants to write, edit, restructure, or tighten a skill, turn a workflow from the current conversation into a skill, or make a skill trigger more reliably, even if they never say the word "skill".
+description: Create a new skill or improve an existing one. Use this whenever the user wants to write, edit, restructure, or tighten a skill, turn a workflow from the current conversation into a skill.
 ---
 
 # Create skill
@@ -12,19 +12,21 @@ The loop is short:
 1. Figure out what the skill should do and when it should fire.
 2. Draft the `SKILL.md`.
 3. Try it on two or three realistic prompts.
-4. Show the user the results and ask what is off.
-5. Improve the skill, then repeat until the user is happy.
+4. Review the results yourself. Improve and rerun until they pass your own review.
+5. Show the user the results and ask what is off.
+6. Improve the skill on their feedback, then repeat from step 3 until the user is happy.
 
-Find out where the user is in this loop and jump in there. "I want a skill for X" starts at step 1. "Here is my draft, is it any good?" starts at step 3. If the user says they just want to vibe and skip the testing, do that.
+Find out where the user is in this loop and jump in there. "I want a skill for X" starts at step 1. "Here is my draft, is it any good?" starts at step 3. "Add a rule to my skill" is still the whole loop, scaled to the change, because an untested rule is a guess about agent behavior. Skip the testing only when the user says so.
 
 ## House rules
 
 - **Write every skill artifact in English.** The `SKILL.md`, its references, scripts, comments, and examples are all English, even when the conversation with the user is in another language.
-- **Be concise and to the point.** Every sentence must change what the agent does. Cut the rest.
+- **Be concise and to the point.** Every sentence must change what the agent does. Cut the rest. When the user dictates a rule, understand the intent, then write the shortest version that carries it. Never transcribe their wording.
 - **Use a plain dash, never an em dash.** Write `-` where you would reach for `—`.
 - **Keep `SKILL.md` under about 500 lines.** When it grows past that, move detail into `references/` and point to it.
+- **Lean away from examples.** State the rule and the reason. Add an example only when the rule is hard to grasp from prose alone and you believe the agent would get it wrong without one. Examples cost lines and tempt the agent to match the case instead of the rule.
 - **Explain why, not just what.** A sentence that says why a step matters lets the agent handle cases the skill never anticipated. All-caps `ALWAYS` and `NEVER` are a yellow flag that the reasoning is missing.
-- **Use the imperative.** "Read the config first", not "the config should be read first".
+- **Use the imperative.** Tell the agent what to do, not what should be done.
 
 ## Communicating with the user
 
@@ -43,6 +45,21 @@ Four questions to settle:
 
 Ask about edge cases, example inputs, and dependencies now, before writing anything. If MCPs or search are available, use them to look up prior art and best practices so the user carries less of the burden.
 
+## Where the skill lives
+
+Skills follow the Agent Skills open standard, and most agents read a vendor-neutral directory. Claude Code is the main exception. Put the real folder where most agents find it, and give the exceptions a symlink, so one copy serves every agent in the project.
+
+| Scope | Real folder | Symlink for Claude Code |
+|---|---|---|
+| Project | `.agents/skills/<name>/` | `.claude/skills/<name>` -> `../../.agents/skills/<name>` |
+| User | `~/.agents/skills/<name>/` | `~/.claude/skills/<name>` -> `../../.agents/skills/<name>` |
+
+Codex, Cursor, Gemini CLI, GitHub Copilot, OpenCode, Amp, and Cline read `.agents/skills/` natively. Claude Code reads only `.claude/skills/` but documents symlink support, so the link is the official path, not a hack. Windsurf reads only `.windsurf/skills/`; add a link there only when the project actually uses Windsurf. Commit both the folder and the symlink. Use a relative link so the repo works from any checkout path.
+
+Never create the real folder under `.claude/skills/`. A skill that lives only there is invisible to every other agent on the team.
+
+When the user asks for a project skill, default to this layout and say so. Ask only when the project already has skills in a different place and moving them is a separate decision.
+
 ## Write the SKILL.md
 
 ### Anatomy
@@ -60,7 +77,9 @@ skill-name/
 ### Frontmatter
 
 - **name**: the skill's identifier, kebab-case, matching the folder name.
-- **description**: when to trigger and what the skill does. This is the main triggering mechanism, so every "when to use" fact lives here, not in the body. Agents tend to undertrigger skills, so make the description a little pushy. Instead of "How to build a dashboard for internal metrics", write "How to build a dashboard for internal metrics. Use this whenever the user mentions dashboards, charts, metrics, or wants to display company data, even if they never say 'dashboard'."
+- **description**: what the skill does and when to trigger. This is the main triggering mechanism, so every "when to use" fact lives here, not in the body. Agents tend to undertrigger skills, so make the description a little pushy. Instead of "How to build a dashboard for internal metrics", write "How to build a dashboard for internal metrics. Use this whenever the user mentions dashboards, charts, metrics, or wants to display company data, even if they never say 'dashboard'."
+
+    Leave the rest out (ex. internal workflow). Those belong in the body.
 
 ### Progressive disclosure
 
@@ -116,7 +135,9 @@ Without subagents, read the `SKILL.md` and follow it yourself, one prompt at a t
 
 When the runs finish, grade them if there are assertions: a fresh subagent reads each run's outputs and transcript, marks every assertion pass or fail with the evidence it found, and flags assertions that passed too easily or outcomes nothing checked. Grade from the real output, never from the run's own summary.
 
-Present the outputs side by side in the conversation, with the grades when there are any. For files the user needs to open, save them and give the path. Ask inline: "How does this look? What would you change?" Empty feedback means fine. Focus the next revision on the prompts where the user had specific complaints, and on any assertion the skill run failed while the baseline passed.
+Then review the runs yourself before the user sees anything. Read every output and transcript against the intent you captured and against the baseline. When a run misses the intent, fails an assertion, or is no better than the baseline, improve the skill and rerun. The user's time goes to judgment calls, not to catching failures you could have caught.
+
+Show the user once the runs pass your own review, or once you are stuck on a call only they can make. Present the outputs side by side, with the grades when there are any, and say what you already fixed. For files the user needs to open, save them and give the path. Ask inline: "How does this look? What would you change?" Empty feedback means fine.
 
 ## Improve the skill
 
@@ -125,7 +146,7 @@ Present the outputs side by side in the conversation, with the grades when there
 3. **Explain the why.** If the user's feedback is terse, work out what they actually need and write that reasoning into the skill so the agent can apply it to new cases.
 4. **Bundle repeated work.** If every test run wrote the same helper script or took the same multi-step detour, write that script once, put it in `scripts/`, and tell the skill to use it.
 
-Then rerun the test prompts and show the user again. Stop when the user is happy, the feedback is all empty, or you are no longer making progress.
+Then rerun the test prompts, review them yourself, and show the user again. Stop when the user is happy, the feedback is all empty, or you are no longer making progress.
 
 ## Make it trigger
 
@@ -135,10 +156,19 @@ Write six to ten realistic queries: half that should trigger, half that should n
 
 ## Update an existing skill
 
-Keep the original folder name and `name` field. Snapshot the current version before editing so the user can compare. Edit in place, rerun the test prompts, and show both versions when the change is contested.
+Every change to an existing skill, however small, runs the same loop as creating a skill. The only difference is scale and baseline.
+
+1. Keep the original folder name and `name` field.
+2. Snapshot the current version to a scratch directory before editing. The snapshot is the baseline for this round.
+3. Make the edit.
+4. Write one to three test prompts that exercise the change specifically. The existing test prompts catch regressions but rarely touch the new rule, so do not rely on them alone.
+5. Run each prompt with the new version and with the snapshot, in the same turn, exactly as in "Try it out". Grade with assertions when the change is checkable.
+6. Review the outputs yourself. Check that the change shows up and nothing else broke. If the outputs match the snapshot, the rule is not doing anything yet. Improve and rerun until it does, or until you are sure it cannot.
+7. Show the user both outputs side by side, point at where the change made a difference, and say what you fixed along the way. Repeat from step 3 on their feedback.
 
 ## Before you hand it over
 
+- The real folder is under `.agents/skills/` (or `~/.agents/skills/`), with a `.claude/skills/` symlink pointing at it.
 - Frontmatter has `name` and `description`, and `name` matches the folder.
 - Every file the body references exists.
 - Everything is in English, with plain dashes.

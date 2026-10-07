@@ -1,6 +1,6 @@
 ---
 name: rewrite
-description: Rewrite an existing draft so it is clear, succinct, and worth reading to the end, then copyedit it. Preserves the author's meaning, nuance, and voice. Handles English, Chinese, and mixed Chinese-English text. Use this whenever the user pastes or points at prose and asks to rewrite, tighten, polish, simplify, shorten, or improve it, in any language, including 改寫, 潤稿, 精簡, 修一下, or "make this read better", even if they never say "rewrite".
+description: Rewrite an existing draft so it is clear, succinct, and worth reading to the end, while keeping the author's meaning and voice. Handles English, Chinese, and mixed Chinese-English text. Use this whenever the user pastes or points at prose and asks to rewrite, tighten, polish, simplify, shorten, or improve it, in any language, including 改寫, 潤稿, 精簡, 修一下, or "make this read better".
 ---
 
 # Rewrite
@@ -57,16 +57,19 @@ In long pieces, spread the interesting moments out. A long stretch with nothing 
 - Prefer the precise word to the vivid one, and the vivid one to the vague one.
 - Use a plain dash, never an em dash.
 
-### Mixed Chinese and English
-
-- Put one space between Chinese characters and any Latin letters or digits: "這個 feature 跑了 3 次", not "這個feature跑了3次".
-- Keep proper nouns in their official capitalization: GitHub, Claude Code, React, TypeScript.
-- Lowercase common English words used inside Chinese sentences: "這個 feature", "跑一次 eval", "開一個 pull request". Capitalizing them reads like shouting.
-- Do not translate a term the author left in English. They chose it.
-
 ### Bold
 
 Bold marks the one thing a skimming reader must not miss. Bold the claim, not the whole sentence, and at most a few per section. When everything is bold, nothing is.
+
+## Chinese and mixed Chinese-English text
+
+Apply these on top of the four passes whenever the text is Chinese or mixes Chinese with English.
+
+- **Third-person pronouns follow the referent.** 他 is a man, 她 is a woman, 它 is anything without life: an object, an animal, a system, a company, an idea. Mixing them up is a correctness error, not a style choice, so check every 他, 她, and 它 against what it points to.
+- Put one space between Chinese characters and any Latin letters or digits: "這個 feature 跑了 3 次", not "這個feature跑了3次".
+- Keep proper nouns in their official capitalization: GitHub, Claude Code, React, TypeScript.
+- Lowercase common English words used inside Chinese sentences: "這個 feature", "跑一次 eval", "開一個 pull request". Capitalizing them reads like shouting.
+- Do not translate a term the author left in English, and do not rewrite digits as Chinese numerals. They chose it.
 
 ## Output
 
